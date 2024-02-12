@@ -1,33 +1,40 @@
 {
-  "name": "@fusebit/cloud-git",
+  "name": "@openiap/cloud-git-mongodb",
   "version": "1.0.0",
   "description": "Node.js git server for cloud-native applications",
   "main": "lib/index.js",
-  "license": "MIT",
-  "author": "https://fusebit.io",
-  "packageAs": "@fusebit/cloud-git",
-  "keywords": [],
-  "homepage": "https://github.com/fusebit/cloud-git",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:fusebit/cloud-git.git"
-  },
-  "bugs": {
-    "url": "http://github.com/fusebit/cloud-git/issues"
-  },
-  "engines": {
-    "node": ">= 14.14"
-  },
-  "devDependencies": {
-    "express": "^4.17.1",
-    "jest": "^24.9.0",
-    "prettier": "^2.0.5",
-    "uuid": "^8.3.2"
-  },
   "scripts": {
     "test": "jest --colors",
     "coverage": "jest --colors --coverage",
     "prettier": "prettier --write ./lib ./test",
     "sample": "node sample/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skadefro/cloud-git-mongodb.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "OpenIAP ApS / Allan Zimmermann",
+  "license": "MPL-2.0",
+  "keywords": [],
+  "bugs": {
+    "url": "https://community.openiap.io/"
+  },
+  "homepage": "https://github.com/skadefro/cloud-git-mongodb.",
+  "funding": "https://github.com/sponsors/skadefro",
+  "engines": {
+    "node": ">= 14.14"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.2",
+    "express": "^4.18.2",
+    "mongodb": "^4.11.0"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "prettier": "^2.0.5",
+    "uuid": "^8.3.2"
   }
 }
