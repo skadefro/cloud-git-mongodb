@@ -8,7 +8,11 @@ async function main() {
   const mongodburl = process.env.MONGO_URL || 'mongodb://localhost:27017';
   const mongodb = process.env.MONGO_DB || 'git';
   const mongocol = process.env.MONGO_COL || 'repos';
-  const cli = await MongoClient.connect(mongodburl);
+  /**
+   * @type {MongoClient}
+  **/
+  let cli = null;
+
   
   const app = Express();
   const repos = {}
@@ -24,8 +28,11 @@ async function main() {
       let path = parts[2];
       let repo = repos[path];
       if (repo == null && path != null && path != "") {
-        // repo = new MemoryGitRepository();
-        repo = new MongoGitRepository(cli.db(mongodb), mongocol, path);
+        repo = new MemoryGitRepository();
+        // if(cli == null) {
+        //   cli = await MongoClient.connect(mongodburl);
+        // }
+        // repo = new MongoGitRepository(cli.db(mongodb), mongocol, path);
         repos[path] = repo;
       }
       if(parts.length > 4 && parts[3] == "info" && parts[4] == "refs") {
@@ -35,11 +42,21 @@ async function main() {
       } else if(parts.length > 3 && parts[3] == "git-receive-pack") {
         Protocol.handlePost(repo, 'git-receive-pack')(req, res, next);
       } else if(parts.length == 2 || (parts.length == 3 && path == "")) {
-        var _repos = await cli.db(mongodb).collection(mongocol).distinct('repo');
         var html = "<html><body><a href='/git'>repos</a><ul>";
-        for(var i = 0; i < _repos.length; i++) {
-          html += `<li><a href="/git/${_repos[i]}">${_repos[i]}</a>`;
-          html += ` <a href="/git/${_repos[i]}/delete">del</a></li>`;
+        var _repos = [];
+        if(cli != null) {
+          _repos = await cli.db(mongodb).collection(mongocol).distinct('repo');
+          for(var i = 0; i < _repos.length; i++) {
+            html += `<li><a href="/git/${_repos[i]}">${_repos[i]}</a>`;
+            html += ` <a href="/git/${_repos[i]}/delete">del</a></li>`;
+          }
+        }
+        var keys = Object.keys(repos);
+        for(var i = 0; i < keys.length; i++) {
+          const key = keys[i];
+          if(_repos.indexOf(key) < 0) {
+            html += `<li><a href="/git/${key}">${key}</a>`;
+          }
         }
         html += "</ul></body></html>"; 
         res.status(200).send(html);
@@ -69,27 +86,23 @@ async function main() {
         } else {
           var html = "<html><body><a href='/git'>repos</a> | <a href='/git/"+path+"'>branches</a> | <a href='javascript:history.back()''>Go Back</a><ul>";
           var sha = parts[4];
-          const file = await repo.db.collection(repo.repoName + '.files').findOne({ "filename": `blob_${sha}` });
+          const file = await repo.getObject(null, sha);
           if (!file) {
             return res.status(404).send('File not found');
           }
-          if(file.metadata.objectType == "tree" || file.metadata.objecttype == "tree") {
-            var treeobj = await repo.getObject(null, sha);
-            var files = await repo.parseTree(treeobj, false);
+          if(file.objectType == "tree" || file.objecttype == "tree") {
+            var files = await repo.parseTree(file, false);
           } else {
             if(req.query.download != null){
               res.set({
                 'Content-Type': file.contentType,
-                'Content-Disposition': `attachment; filename="${file.filename}"`,
+                'Content-Disposition': `attachment; filename="${sha}"`,
               });
-
-              const downloadStream = repo.bucket.openDownloadStream(file._id);
-              downloadStream.pipe(res);
+              res.write(file.data);
               return res.end();
             }
-            var treeobj = await repo.getObject(null, sha);
             var html = "<html><body><a href='/git'>repos</a> | <a href='/git/"+path+"'>branches</a> | <a href='javascript:history.back()''>Go Back</a>";
-            html += "<p><pre>" + treeobj.data.toString('utf8') + "</p></pre>"
+            html += "<p><pre>" + file.data.toString('utf8') + "</p></pre>"
             html += "</ul></body></html>"; 
             res.status(200).send(html);
             next();
@@ -128,10 +141,11 @@ async function main() {
     }
   });
   
-  require('http')
+  const server = require('http')
     .createServer(app)
     .listen(3000, () => {
       console.log('Your git repositories are available at http://localhost:3000/git/');
     });
+    server.timeout = 240000 * 10; // Set timeout to 40 minutes
 }
 main();
