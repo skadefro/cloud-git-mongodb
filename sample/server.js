@@ -146,6 +146,12 @@ async function main() {
     .listen(3000, () => {
       console.log('Your git repositories are available at http://localhost:3000/git/');
     });
+    
+    // timeout work around.
+    // parsing packages is brain-dead slow ... it takes FOREVER if the repo is pushing a big file.
     server.timeout = 240000 * 10; // Set timeout to 40 minutes
+    server.keepAliveTimeout = 240000 * 10; // Increase keep-alive timeout to match server timeout
+    server.headersTimeout = server.keepAliveTimeout + 1000; // Slightly longer than keepAliveTimeout
+
 }
 main();
