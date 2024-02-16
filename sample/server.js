@@ -28,11 +28,11 @@ async function main() {
       let path = parts[2];
       let repo = repos[path];
       if (repo == null && path != null && path != "") {
-        repo = new MemoryGitRepository();
-        // if(cli == null) {
-        //   cli = await MongoClient.connect(mongodburl);
-        // }
-        // repo = new MongoGitRepository(cli.db(mongodb), mongocol, path);
+        // repo = new MemoryGitRepository();
+        if(cli == null) {
+          cli = await MongoClient.connect(mongodburl);
+        }
+        repo = new MongoGitRepository(cli.db(mongodb), mongocol, path);
         repos[path] = repo;
       }
       if(parts.length > 4 && parts[3] == "info" && parts[4] == "refs") {
@@ -128,6 +128,7 @@ async function main() {
       } else if(parts.length == 4 && parts[3] == "delete") {
         await repo.DeleteRepo();
         res.status(200).send("Deleted<p><a href='/git'>back</p>");
+        delete repos[path];
         next();
       } else {
         console.log("Not Found", url);
