@@ -30,6 +30,7 @@ You can set repo.uploadasync to false to skip waiting on each upload, but then r
 
 Besides the original functionality of [cloud-git](https://github.com/fusebit/cloud-git) I have also added 
  - **parseCommit**: Will parse a commit object and return commit information.
+ - **parseTag**: Will parse a tag object and and return tag information.
  - **parseTree**: Will traverse a tree object and return the directory listing inside side it. If recursive is true, it will also traverse all sub folders found and add them as subtree on the each directory.
  - **GetTree**: Given the sha of a commit or tree it will get the directory listning for that.
 
@@ -38,6 +39,9 @@ The main difference from the original repo is
  - Parse packs after client have send all data. This will **drasticly** improve speed and lower memory usage, since concatting buffer is slow in nodejs and calling `zlib.inflateSync` for every package received is rather cpu intensive for larger files.
  - Fix getting former object when handling deltified files ( this is why the repo is not added as parameter to protocol )
  - Minor syntax updates for easy copy'b'paste into typescript projects.
+ - Added work around to support git sending delete for tags and branches ( added commandRequiresPackfile )
+ - Add **ugly** work around on git client sending INVALID object type 0 when pushing lightweight rag or new branch with no new commits
 
 ## Usage
 For full usage description and more information see original [cloud-git](https://github.com/fusebit/cloud-git) repository
+
