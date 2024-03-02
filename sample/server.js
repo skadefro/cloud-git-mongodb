@@ -3,7 +3,7 @@ require("dotenv").config()
 const Express = require("express");
 // const { MemoryGitRepository, MongoGitRepository, Protocol } = require("../lib/index.mjs");
 const { MongoClient } = require("mongodb");
-const memoryrepo = false;
+const memoryrepo = true;
 async function main() {
   try {
     const { MemoryGitRepository, MongoGitRepository, Protocol } = await import("../lib/index.mjs");
