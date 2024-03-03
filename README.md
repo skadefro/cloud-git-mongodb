@@ -15,6 +15,8 @@ Either create a .env file, or supply mongodb url direcly.
 ```
 npm i
 MONGO_URL=mongodb://localhost:27017 node sample/server.js
+# or to use memory provider
+node sample/server.js
 ```
 Or update server.js to use MemoryGitRepository instead of MongoGitRepository.
 
@@ -29,6 +31,7 @@ When pushing to a repo, it will by default make repo's with name main or master,
 You can set repo.uploadasync to false to skip waiting on each upload, but then risk something could have gone wrong and you have an inconsistent repository. This will bost speed even more, but **not** recommended.
 
 Besides the original functionality of [cloud-git](https://github.com/fusebit/cloud-git) I have also added 
+ - **report-status**: Add report-status capability
  - **parseCommit**: Will parse a commit object and return commit information.
  - **parseTag**: Will parse a tag object and and return tag information.
  - **parseTree**: Will traverse a tree object and return the directory listing inside side it. If recursive is true, it will also traverse all sub folders found and add them as subtree on the each directory.
@@ -40,8 +43,11 @@ The main difference from the original repo is
  - Fix getting former object when handling deltified files ( this is why the repo is not added as parameter to protocol )
  - Minor syntax updates for easy copy'b'paste into typescript projects.
  - Added work around to support git sending delete for tags and branches ( added commandRequiresPackfile )
+ - Added support for report-status, to support using isomorphic-git who does not respect when it is missing. [@1866](https://github.com/isomorphic-git/isomorphic-git/issues/1866)
  - Add **ugly** work around on git client sending INVALID object type 0 when pushing lightweight rag or new branch with no new commits
-
+ - Re-write a protocol.mjs one more time, to be more syncroniouse and not depend on events. ( events rocks. But we only have one stream so seems a bit over complicated )
+ - Make it more forgiving to protocol mistakes
+ 
 ## Usage
 For full usage description and more information see original [cloud-git](https://github.com/fusebit/cloud-git) repository
 

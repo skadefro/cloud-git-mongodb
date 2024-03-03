@@ -8,6 +8,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.env",
             "program": "${workspaceFolder}/sample/server.js"
         }

@@ -3,10 +3,11 @@ require("dotenv").config()
 const Express = require("express");
 // const { MemoryGitRepository, MongoGitRepository, Protocol } = require("../lib/index.mjs");
 const { MongoClient } = require("mongodb");
-const memoryrepo = true;
+const memoryrepo = process.env.MONGO_URL == null || process.env.MONGO_URL == "";
 async function main() {
   try {
     const { MemoryGitRepository, MongoGitRepository, Protocol } = await import("../lib/index.mjs");
+    const { parseTree } = await import("../lib/tools.mjs");
 
 
     const mongodburl = process.env.MONGO_URL || "mongodb://localhost:27017";
@@ -92,8 +93,8 @@ async function main() {
             if (!file) {
               return res.status(404).send("File not found");
             }
-            if(file.objectType == "tree" || file.objecttype == "tree") {
-              var files = await repo.parseTree(file, false);
+            if(file.objectType == "tree" || file.objecttype == "tree" || file.objectType == 2) {
+              var files = await parseTree(file, false);
             } else {
               if(req.query.download != null){
                 res.set({
