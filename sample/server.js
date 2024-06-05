@@ -2,6 +2,14 @@ require("dotenv").config()
 
 const Express = require("express");
 
+async function CreateTestTag(repo) {
+  await repo.createAnnotatedTag("test", "testtag", "az <az@example.com>", "Test tag");
+
+  await CreateAndUpdateTestBranch(repo);
+
+  await repo.createLightweightTag("test", "testtag-light");
+
+}
 async function CreateAndUpdateTestBranch(repo) {
   const { parseTree, parseCommit, createTree, createCommit, objectSha } = await import("../lib/tools.mjs");
 
@@ -127,6 +135,7 @@ async function main() {
               html += ` <a href="/git/${_repos[i]}/delete">del</a>`;
               if (_repos[i] == "test1") {
                 html += ` <a href="/git/${_repos[i]}/test">test</a>`;
+                html += ` <a href="/git/${_repos[i]}/testtag">testtag</a>`;
               }
               html += `</li>`;
               // 
@@ -155,7 +164,7 @@ async function main() {
           html += "</ul></body></html>";
           res.status(200).send(html);
           next();
-        } else if ((parts.length == 4 && parts[3] != "delete" && parts[3] != "test") || parts.length == 5) {
+        } else if ((parts.length == 4 && parts[3] != "delete" && parts[3] != "test" && parts[3] != "testtag") || parts.length == 5) {
           var ref = parts[3];
           if (parts.length == 4) {
             var html = `<html><body><a href="/git">repos</a> | <a href="/git/"+path+"">branches</a><ul>`;
@@ -209,6 +218,10 @@ async function main() {
           next();
         } else if (parts.length == 4 && parts[3] == "test") {
           await CreateAndUpdateTestBranch(repo);
+          res.status(200).send(`Tested<p><a href="/git">back</p>`);
+          next();
+        } else if (parts.length == 4 && parts[3] == "testtag") {
+          await CreateTestTag(repo);
           res.status(200).send(`Tested<p><a href="/git">back</p>`);
           next();
         } else if (parts.length == 4 && parts[3] == "delete") {
