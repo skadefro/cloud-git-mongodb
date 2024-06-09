@@ -35,7 +35,7 @@ async function CreateAndUpdateTestBranch(repo) {
   const parentObject = await repo.getObject(null, parent);
   const parentCommit = parseCommit(parentObject);
   const parentTree = await repo.getObject(null, parentCommit.tree);
-  let parentEntries = parseTree(parentTree);
+  let parentEntries = await parseTree(repo, parentTree);
 
   // Create a new blob for README.md
   const filename = "README.md";
@@ -86,7 +86,7 @@ const { MongoClient } = require("mongodb");
 const memoryrepo = process.env.MONGO_URL == null || process.env.MONGO_URL == "";
 async function main() {
   try {
-    const { MemoryGitRepository, MongoGitRepository, Protocol } = await import("../lib/index.mjs");
+    const { MongoGitRepository, Protocol } = await import("../lib/index.mjs");
     const { setDebugHandler, parseTree } = await import("../lib/tools.mjs");
     // setDebugHandler((...args) => {
     //   console.log.apply(this, args);
@@ -116,7 +116,7 @@ async function main() {
         let repo;
         if (repo == null && path != null && path != "") {
           if (memoryrepo == true) {
-            repo = new MemoryGitRepository();
+            throw new Error("Memory repository not supported anymore")
           } else {
             repo = new MongoGitRepository(cli.db(mongodb), mongocol, path);
           }
@@ -182,7 +182,7 @@ async function main() {
               return res.status(404).send("File not found");
             }
             if (file.objectType == "tree" || file.objecttype == "tree" || file.objectType == 2) {
-              var files = await parseTree(file, false);
+              var files = await parseTree(repo, file, false);
             } else {
               if (req.query.download != null) {
                 res.set({
@@ -203,7 +203,7 @@ async function main() {
           files.sort((a, b) => a.name.localeCompare(b.name));
           for (let i = 0; i < files.length; i++) {
             const file = files[i]
-            if (file.mode != 40000) continue;
+            if (file.mode != 40000 && file.mode != 16384) continue;
             html += `<li><a href="/git/${path}/${ref}/${file.sha}">${file.name}</a></li>`;
           }
           let readme = "";
