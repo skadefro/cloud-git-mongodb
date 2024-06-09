@@ -1,6 +1,6 @@
 {
   "name": "@openiap/cloud-git-mongodb",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Node.js git server for cloud-native applications",
   "main": "lib/index.mjs",
   "scripts": {
