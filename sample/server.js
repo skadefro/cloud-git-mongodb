@@ -203,13 +203,13 @@ async function main() {
           files.sort((a, b) => a.name.localeCompare(b.name));
           for (let i = 0; i < files.length; i++) {
             const file = files[i]
-            if (file.mode != 40000) continue;
+            if (file.mode != 40000 && file.mode != 16384) continue;
             html += `<li><a href="/git/${path}/${ref}/${file.sha}">${file.name}</a></li>`;
           }
           let readme = "";
           for (let i = 0; i < files.length; i++) {
             const file = files[i]
-            if (file.mode == 40000) continue;
+            if (file.mode == 40000 || file.mode == 16384) continue;
             if (file.name.toLowerCase() == "readme.md") readme = (await repo.getObject(undefined, file.sha)).data.toString("utf8");
             html += `<li><a href="/git/${path}/${ref}/${file.sha}">${file.name}</a> | <a href="/git/${path}/${ref}/${file.sha}?download=${Math.random().toString(36).substring(7)}">download</a></li>`;
           }
