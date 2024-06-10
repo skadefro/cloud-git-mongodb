@@ -149,7 +149,24 @@ async function main() {
               }
             }
           }
-          html += "</ul></body></html>";
+          html += "</ul>";
+          const memory = process.memoryUsage();
+          // {
+          //   "rss": 73601024,
+          //   "heapTotal": 19816448,
+          //   "heapUsed": 17947520,
+          //   "external": 19689887,
+          //   "arrayBuffers": 18283312
+          // }
+          // add memory usage in MB
+          memory.rss = Math.round(memory.rss / 1024 / 1024) + "MB";
+          memory.heapTotal = Math.round(memory.heapTotal / 1024 / 1024) + "MB";
+          memory.heapUsed = Math.round(memory.heapUsed / 1024 / 1024) + "MB";
+          memory.external = Math.round(memory.external / 1024 / 1024) + "MB";
+          memory.arrayBuffers = Math.round(memory.arrayBuffers / 1024 / 1024) + "MB";
+          
+          html += `<pre>${JSON.stringify(memory, null, 2)}</pre>`;
+          html += "</body></html>";
           res.status(200).send(html);
           next();
         } else if (parts.length == 3) {
