@@ -70,7 +70,7 @@ async function CreateAndUpdateTestBranch(repo) {
   const committer = "az <az@example.com> " + Math.floor(Date.now() / 1000) + " +0000";
   const message = "test commit";
 
-  const commit = createCommit({ tree: tree.sha, parent, author, committer, message });
+  const commit = createCommit({ tree: tree.sha, parents: parent, author, committer, message });
   await repo.storeObject(commit);
 
   // Update the branch reference
