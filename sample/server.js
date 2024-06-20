@@ -88,9 +88,9 @@ async function main() {
   try {
     const { MemoryGitRepository, MongoGitRepository, Protocol } = await import("../lib/index.mjs");
     const { setDebugHandler, parseTree } = await import("../lib/tools.mjs");
-    // setDebugHandler((...args) => {
-    //   console.log.apply(this, args);
-    // });
+    setDebugHandler((...args) => {
+      console.log.apply(this, args);
+    });
     const mongodburl = process.env.MONGO_URL || "mongodb://localhost:27017";
     const mongodb = process.env.MONGO_DB || "git";
     const mongocol = process.env.MONGO_COL || "repos";
